@@ -13,3 +13,4 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->post('/user/change-password', [UserController::class, 'updatePassword']);
+Route::middleware('auth:sanctum')->put('/user/update', [UserController::class, 'updateProfile']);
