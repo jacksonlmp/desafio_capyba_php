@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -64,6 +66,25 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if ($user) {
+                $user->tokens()->delete();
+                return response()->json(['message' => 'Logout realizado com sucesso'], 200);
+            }
+
+            return response()->json(['message' => 'Usuário não autenticado'], 401);
+
+        } catch (\Exception $e) {
+            Log::error('Logout Error: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Erro ao realizar logout. Por favor, tente novamente.'], 500);
+        }
     }
 }
 
