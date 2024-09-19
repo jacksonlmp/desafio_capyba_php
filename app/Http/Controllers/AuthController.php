@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -84,6 +86,40 @@ class AuthController extends Controller
             Log::error('Logout Error: ' . $e->getMessage());
 
             return response()->json(['message' => 'Erro ao realizar logout. Por favor, tente novamente.'], 500);
+        }
+    }
+
+    public function sendVerificationToken(Request $request)
+    {
+        $user = Auth::user();
+
+        // Gerar o token de verificação
+        $user->verification_token = bin2hex(random_bytes(16)); // Gera um token aleatório
+        $user->save();
+
+        // Enviar o e-mail de verificação
+        Mail::to($user->email)->send(new VerifyEmail($user));
+
+        return response()->json(['message' => 'Token de verificação enviado para o e-mail: ' . $user->email .'.'], 200);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+
+        // Verifica se o token está correto
+        if ($user->verification_token === $request->token) {
+            $user->email_verified_at = now();
+            $user->verification_token = null; // Limpa o token após verificação
+            $user->save();
+
+            return response()->json(['message' => 'E-mail verificado com sucesso.'], 200);
+        } else {
+            return response()->json(['error' => 'Token inválido.'], 400);
         }
     }
 }
