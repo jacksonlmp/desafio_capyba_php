@@ -24,6 +24,10 @@ Rode as migrations
 ```
 php artisan migrate
 ```
+Rode os seeders dos filmes
+```
+php artisan db:seed
+```
 Rode o servidor
 ```
 php artisan serve
