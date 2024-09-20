@@ -47,6 +47,7 @@ class MovieController extends Controller
             'description' => 'required|string',
             'release_date' => 'required|date',
             'is_featured' => 'required|boolean',
+            'genre' => 'required|string',
         ]);
 
         $movie = Movie::create($validated);

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Movie extends Model
 {
-    protected $fillable = ['title', 'description', 'release_date', 'is_featured'];
+    protected $fillable = ['title', 'description', 'release_date', 'is_featured', 'genre'];
 
     public function scopeSearch($query, $term)
     {
