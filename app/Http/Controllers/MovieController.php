@@ -10,6 +10,16 @@ class MovieController extends Controller
 {
     public function index(Request $request)
     {
+        return $this->getMovies($request);
+    }
+
+    public function restrictedIndex(Request $request)
+    {
+        return $this->getMovies($request);
+    }
+
+    private function getMovies(Request $request)
+    {
         $pageSize = $request->input('page_size', 10);
         $search = $request->input('search');
         $isFeatured = $request->input('is_featured');
@@ -21,14 +31,17 @@ class MovieController extends Controller
         $query = Movie::query();
 
         if ($search) {
-            $query->search($search);
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
         }
 
         if (!is_null($isFeatured)) {
-            $query->filterByFeatured($isFeatured);
+            $query->where('is_featured', $isFeatured);
         }
 
-        $query->ordered($orderField, $orderDirection);
+        $query->orderBy($orderField, $orderDirection);
 
         $movies = $query->paginate($pageSize);
 
@@ -36,7 +49,7 @@ class MovieController extends Controller
             'total' => $movies->total(),
             'movies' => $movies->items(),
             'current_page' => $movies->currentPage(),
-            'last_page' => $movies->lastPage()
+            'last_page' => $movies->lastPage(),
         ], 200);
     }
 
