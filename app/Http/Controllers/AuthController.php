@@ -26,13 +26,11 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        // Upload da imagem de perfil, se fornecida
         $profileImagePath = null;
         if ($request->hasFile('profile_image')) {
             $profileImagePath = $request->file('profile_image')->store('profile_images', 'public');
         }
 
-        // Criação do usuário
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -54,7 +52,6 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        // Verifica se usuário existe
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
@@ -93,11 +90,9 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
-        // Gerar o token de verificação
         $user->verification_token = bin2hex(random_bytes(16)); // Gera um token aleatório
         $user->save();
 
-        // Enviar o e-mail de verificação
         Mail::to($user->email)->send(new VerifyEmail($user));
 
         return response()->json(['message' => 'Token de verificação enviado para o e-mail: ' . $user->email .'.'], 200);
@@ -111,7 +106,6 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Verifica se o token está correto
         if ($user->verification_token === $request->token) {
             $user->email_verified_at = now();
             $user->verification_token = null; // Limpa o token após verificação

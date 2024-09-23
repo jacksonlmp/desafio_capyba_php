@@ -33,4 +33,8 @@ Rode o servidor
 php artisan serve
 ```
 
+Obs: Não consegui fazer com que a verificação de e-mail funcionasse corretamente, uma alternativa que fiz foi enviar o token de verificação para o log
+**/storage/logs/laravel.log**
+Uma vez feita a requisição pelo endpoint **Enviar token de verificação**, o log receberá o token como se fosse em formato de e-mail.
+
 
