@@ -1,0 +1,233 @@
+openapi: 3.0.0
+info:
+  title: API Desafio Capyba
+  description: API para verificação de e-mail, gerenciamento de perfil de usuário e listagem de filmes.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8000/api
+    description: Servidor Local
+
+paths:
+  /email/verify:
+    post:
+      summary: Verificar e-mail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jackson@gmail.com
+                token:
+                  type: string
+                  example: cb5627d430e3325f0a36706010a10045
+      responses:
+        '200':
+          description: E-mail verificado com sucesso
+        '400':
+          description: Requisição inválida (e.g., token inválido)
+        '404':
+          description: E-mail não encontrado
+
+  /email/send-token:
+    post:
+      summary: Enviar Token de Verificação
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties: 
+                email:
+                  type: string
+                  format: email
+                  example: jackson@gmail.com
+      responses:
+        '200':
+          description: Token enviado com sucesso
+        '400':
+          description: Requisição inválida (e.g., e-mail mal formatado)
+        '404':
+          description: E-mail não encontrado
+
+  /user/change-password:
+    post:
+      summary: Trocar senha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  example: senha1234
+                new_password:
+                  type: string
+                  example: senha123
+                new_password_confirmation:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: Senha alterada com sucesso
+        '400':
+          description: Requisição inválida (e.g., senhas não coincidem)
+
+  /logout:
+    post:
+      summary: Logout do usuário
+      responses:
+        '200':
+          description: Logout realizado com sucesso
+
+  /login:
+    post:
+      summary: Login do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jackson@gmail.com
+                password:
+                  type: string
+                  example: senha123
+      responses:
+        '200':
+          description: Login realizado com sucesso
+        '401':
+          description: Credenciais inválidas
+
+  /user/update:
+    put:
+      summary: Atualizar perfil do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Teste update 23
+                email:
+                  type: string
+                  format: email
+                  example: testeupdate1@gmail.com
+      responses:
+        '200':
+          description: Perfil atualizado com sucesso
+        '400':
+          description: Requisição inválida
+
+  /movies:
+    get:
+      summary: Listagem de Filmes Públicos
+      parameters:
+        - name: is_featured
+          in: query
+          required: false
+          description: Filtrar filmes destacados
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Lista de filmes públicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Filme'
+
+  /restricted-movies:
+    get:
+      summary: Listagem de Filmes Privados
+      responses:
+        '200':
+          description: Lista de filmes privados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Filme'
+  /store:  
+    post:
+      summary: Cadastrar Filme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Filme'
+      responses:
+        '201':
+          description: Filme cadastrado com sucesso
+        '400':
+          description: Requisição inválida
+
+  /register:
+    post:
+      summary: Criar Usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+        '400':
+          description: Requisição inválida
+
+components:
+  schemas:
+    Filme:
+      type: object
+      properties:
+        title:
+          type: string
+          example: New Action Movie
+        description:
+          type: string
+          example: An action-packed thriller.
+        release_date:
+          type: string
+          format: date
+          example: 2024-10-01
+        is_featured:
+          type: boolean
+          example: true
+        genre:
+          type: string
+          example: Action
+
+    Usuario:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Teste Privado
+        email:
+          type: string
+          format: email
+          example: jackson@gmail
+        password:
+          type: string
+          example: senha123
